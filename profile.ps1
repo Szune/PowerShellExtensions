@@ -24,3 +24,32 @@ function grep {
         }
     }
 }
+
+function part {
+    [CmdletBinding()]
+    Param(
+    [Parameter(ValueFromPipeline)] $Input,
+    [Parameter(Position = 1)] $Pattern,
+    [Parameter(Position = 2)] $Part,
+    [Parameter(Position = 3)] $Idx)
+    process {
+        $str = $Input | Out-String -Stream
+        $matches = ([regex]$Pattern).Matches($str)
+        if($matches.Count -gt 0) {
+            if($Part) {
+                if($Idx -ne $null) {
+                    return $matches[$Idx].Groups[$Part].Value
+                } else {
+                    return $matches[0].Groups[$Part].Value
+                }
+            } elseif ($Idx -is [int]) {
+                $num = if($Idx) { $Idx } else { 0 }
+                return $matches[$num].Groups[1].Value
+            } else {
+                return $matches
+            }
+        } else {
+            Write-Host "No matches"
+        }
+    }
+}
